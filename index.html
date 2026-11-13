@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LangkahKu ICT — Dashboard</title>
+  <title>LangkahKu ICT — Belajar Komputer Dasar</title>
   <link rel="stylesheet" href="assets/styles.css">
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -13,7 +12,7 @@
     <header class="app-header">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">L<span>•</span></div>
-        <div><div class="brand-title">LangkahKu <span>ICT</span></div><div class="brand-subtitle">Jadwal visual kelas komputer</div></div>
+        <div><div class="brand-title">LangkahKu <span>ICT</span></div><div class="brand-subtitle">Belajar komputer langkah demi langkah</div></div>
       </div>
       <div class="header-actions">
         <div class="user-info" id="userInfo">Memuat...</div>
@@ -22,61 +21,155 @@
     </header>
 
     <main id="mainContent">
-      <!-- TAMPILAN SISWA -->
-      <section id="studentView" aria-labelledby="studentTitle" hidden>
+      <!-- TAMPILAN SISWA (UNIVERSAL & TENANG) -->
+      <section id="studentView" hidden>
         <div class="intro-row">
           <div>
             <div class="eyebrow"><span class="eyebrow-dot"></span> BELAJAR KOMPUTER DASAR</div>
             <h1 id="studentTitle">Kita belajar <span>satu langkah</span> setiap kali.</h1>
+            <p class="intro-copy">Lihat kegiatan sekarang, dengarkan instruksi, dan tandai jika sudah selesai. Tidak perlu terburu-buru.</p>
+          </div>
+          <div class="access-tools">
+            <button class="tool-button" id="focusToggle">◉ Mode fokus</button>
+            <button class="tool-button" id="textToggle">A+ Teks besar</button>
+            <button class="tool-button" id="contrastToggle">◐ Kontras</button>
           </div>
         </div>
-        <div class="progress-panel" aria-label="Kemajuan kegiatan">
+
+        <div class="progress-panel">
           <div class="progress-heading">
-            <div><span class="mini-label">KEMAJUAN BELAJAR</span><strong id="progressSummary">0 dari 6 kegiatan selesai</strong></div>
+            <div><span class="mini-label">KEMAJUAN BELAJAR</span><strong id="progressSummary">0 dari 0 kegiatan selesai</strong></div>
             <div class="progress-number" id="progressPercent">0%</div>
           </div>
-          <div class="progress-track" id="progressTrack"><div id="progressFill" class="progress-fill"></div></div>
+          <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
         </div>
         
-        <div class="learning-layout">
-          <aside class="schedule-panel" id="schedulePanel">
-            <div class="section-heading"><div><span class="mini-label">PANDUAN HARI INI</span><h2 id="scheduleTitle">Urutan kegiatan</h2></div></div>
-            <ol id="scheduleList" class="schedule-list"></ol>
-          </aside>
-
+        <div class="learning-layout" id="learningLayout">
           <section class="step-panel" id="stepPanel">
-             <div class="step-illustration"><span id="stepEmoji" class="illustration-emoji">🖥️</span></div>
-             <div class="step-copy"><h2 id="stepTitle">Memuat kegiatan...</h2><p id="stepDescription"></p></div>
+             <div class="step-panel-heading">
+                <div class="eyebrow pill" id="stepBadge">KEGIATAN 1</div>
+                <div class="status-label" id="stepStatus">Belum dimulai</div>
+             </div>
+             <div class="step-copy">
+                <h2 id="stepTitle">Memuat kegiatan...</h2>
+                <p id="stepDescription"></p>
+             </div>
+             
+             <div class="gentle-tip" id="tipContainer" hidden>
+                <span>✦</span><div><strong>Petunjuk</strong><p id="stepTip"></p></div>
+             </div>
+
+             <div class="step-toolbar">
+                <button type="button" id="playAudioBtn" class="quiet-button" hidden>🔊 Bacakan instruksi</button>
+                <audio id="stepAudioPlayer" hidden></audio>
+                <button type="button" id="helpBtn" class="quiet-button">🙋 Minta bantuan</button>
+                <button type="button" id="breakBtn" class="quiet-button">☕ Ambil jeda</button>
+             </div>
+
              <div class="step-actions">
-               <button type="button" id="completeButton" class="primary-button">✓ Tandai selesai</button>
+               <button type="button" id="prevBtn" class="secondary-button">← Sebelumnya</button>
+               <button type="button" id="completeBtn" class="primary-button">✓ Sudah selesai</button>
+               <button type="button" id="nextBtn" class="secondary-button">Berikutnya →</button>
              </div>
           </section>
         </div>
       </section>
 
       <!-- TAMPILAN GURU -->
-      <section id="teacherView" aria-labelledby="teacherTitle" hidden>
+      <section id="teacherView" hidden>
         <div class="intro-row teacher-intro">
-          <div><div class="eyebrow"><span class="eyebrow-dot"></span> AREA PENDAMPING</div><h1 id="teacherTitle">Atur kegiatan <span>bersama guru.</span></h1></div>
-          <div class="teacher-badge">⚙️ Mode Host Aktif</div>
+          <div><div class="eyebrow"><span class="eyebrow-dot"></span> AREA GURU</div><h1 id="teacherTitle">Dashboard <span>Pendamping.</span></h1></div>
         </div>
         
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-target="tab-kegiatan">Manajemen Kegiatan & Audio</button>
+          <button class="tab-btn" data-target="tab-monitoring">Monitoring & Penilaian</button>
+          <button class="tab-btn" data-target="tab-laporan">Laporan (CSV)</button>
+        </div>
+
         <div class="teacher-grid">
-          <section class="teacher-card teacher-editor">
-            <div class="teacher-card-heading">
-              <div><span class="mini-label">PENGATURAN JADWAL</span><h2>Susun aktivitas</h2></div>
-              <button type="button" id="addStep" class="small-outline">+ Tambah</button>
-            </div>
-            <div id="editorList" class="editor-list"></div>
-            <div class="editor-actions">
-              <button type="button" id="saveSchedule" class="primary-button">Simpan ke Database</button>
-            </div>
-          </section>
+          <!-- TAB KEGIATAN -->
+          <div id="tab-kegiatan" class="tab-content active">
+            <section class="teacher-card">
+              <div class="teacher-card-heading">
+                <div><h2>Buat Kegiatan Baru</h2><p>Susun materi dan rekam instruksi suara untuk siswa.</p></div>
+              </div>
+              <div class="field-group">
+                <label>Judul Kegiatan Utama</label>
+                <input type="text" id="activityTitle" placeholder="Contoh: Menggunakan Mouse">
+              </div>
+              <div id="editorList" class="editor-list" style="margin-top: 20px;">
+                <!-- Daftar langkah akan di-render di sini -->
+              </div>
+              <button type="button" id="addStepBtn" class="small-outline" style="margin-top:10px;">+ Tambah Langkah</button>
+              
+              <div class="editor-actions" style="margin-top: 30px; border-top: 1px solid var(--line); padding-top:20px;">
+                <button type="button" id="saveActivityBtn" class="primary-button">Simpan & Terbitkan Kegiatan</button>
+              </div>
+            </section>
+          </div>
+
+          <!-- TAB MONITORING & PENILAIAN -->
+          <div id="tab-monitoring" class="tab-content" hidden>
+            <section class="teacher-card">
+              <h2>Penilaian Manual Guru</h2>
+              <p class="helper-text">Berdasarkan pengamatan selama siswa mengerjakan kegiatan.</p>
+              
+              <div class="field-group">
+                <label>Pilih Siswa</label>
+                <select id="assessStudentList"><option>Memuat siswa...</option></select>
+              </div>
+
+              <div class="observation-fields" style="margin-top: 20px;">
+                <div class="field-group">
+                  <label>1. Pemahaman Instruksi (1-4)</label>
+                  <select id="scoreUnd">
+                    <option value="1">1 - Butuh pendampingan penuh</option>
+                    <option value="2">2 - Paham dengan beberapa ulangan</option>
+                    <option value="3">3 - Paham dengan sedikit bantuan</option>
+                    <option value="4">4 - Mandiri memahami instruksi</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>2. Kemandirian Pengerjaan (1-4)</label>
+                  <select id="scoreInd">
+                    <option value="1">1 - Bantuan pada sebagian besar tahap</option>
+                    <option value="2">2 - Bantuan berulang</option>
+                    <option value="3">3 - Mandiri dengan sedikit bantuan</option>
+                    <option value="4">4 - Sepenuhnya mandiri</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>3. Penyelesaian Kegiatan (1-4)</label>
+                  <select id="scoreComp">
+                    <option value="1">1 - Belum selesai</option>
+                    <option value="2">2 - Selesai sebagian</option>
+                    <option value="3">3 - Selesai dengan bantuan</option>
+                    <option value="4">4 - Selesai mandiri</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>Catatan Guru</label>
+                  <textarea id="assessNotes" rows="3" placeholder="Catatan perkembangan..."></textarea>
+                </div>
+                <button type="button" id="saveAssessBtn" class="primary-button" style="margin-top:10px;">Simpan Penilaian</button>
+              </div>
+            </section>
+          </div>
+
+          <!-- TAB LAPORAN -->
+          <div id="tab-laporan" class="tab-content" hidden>
+            <section class="teacher-card">
+              <h2>Ekspor Laporan (CSV)</h2>
+              <p>Unduh rekapitulasi penilaian dan progres belajar siswa.</p>
+              <button type="button" id="exportCsvBtn" class="secondary-button" style="margin-top: 15px;">↓ Unduh Ringkasan Siswa (CSV)</button>
+            </section>
+          </div>
         </div>
       </section>
     </main>
   </div>
-
+  
   <script src="assets/db.js"></script>
   <script src="assets/auth.js"></script>
   <script src="assets/app.js"></script>

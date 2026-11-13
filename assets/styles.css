@@ -1,15 +1,45 @@
-
 :root{color-scheme:light;--page:#f5f8fa;--surface:#fff;--line:#e3eaee;--ink:#1f3344;--muted:#637487;--primary:#156a73;--primary-d:#0e535b;--pale:#e8f4f2;--pale2:#f3f8f7;--shadow:0 12px 34px rgba(26,58,75,.055);--focus:#bb691f;--body-size:16px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--page);color:var(--ink);font:var(--body-size)/1.52 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;letter-spacing:-.007em}
-/* Basic styling for buttons and layout taken from original file */
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink);font:var(--body-size)/1.52 system-ui,-apple-system,sans-serif;}
 button,input,textarea,select{font:inherit; width: 100%; border: 1px solid var(--line); padding: 10px; border-radius: 8px;}
-button{cursor:pointer; width: auto; font-weight: bold; border: none;}
+button{cursor:pointer; width: auto; font-weight: bold; border: none; transition: 0.2s;}
 .primary-button{background:var(--primary);color:#fff;padding:12px 20px;border-radius:10px;}
+.primary-button:hover{background:var(--primary-d);}
 .secondary-button{background:#fff;color:var(--ink);border:1px solid var(--line);padding:12px 20px;border-radius:10px;}
 .danger{color:#a44848; background: #ffe6e6;}
-.page-shell{max-width:1410px;margin:0 auto;padding:22px 50px 0}
-.app-header{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:20px;}
-.learning-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;}
-.teacher-grid{display:grid;grid-template-columns:1fr;gap:20px;}
-.progress-panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:20px;}
-.step-panel, .schedule-panel, .teacher-card {background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;}
+.page-shell{max-width:1100px;margin:0 auto;padding:22px 50px 50px}
+.app-header{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:30px;}
+.intro-row{margin-bottom: 30px;}
+.eyebrow{font-size:11px;font-weight:850;color:var(--primary);letter-spacing:.12em; text-transform: uppercase;}
+h1{font-weight:820;letter-spacing:-.045em;font-size:clamp(29px,3.2vw,43px);line-height:1.16; margin:13px 0 12px}
+h1 span{color:var(--primary)}
+.intro-copy{color:var(--muted);font-size:15px;max-width: 600px;}
+.access-tools{display:flex;gap:7px;margin-top: 15px;}
+.tool-button{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--muted);font-size:12px;}
+.progress-panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 23px;box-shadow:var(--shadow);margin-bottom:25px;}
+.progress-heading{display:flex;justify-content:space-between;margin-bottom:12px;}
+.progress-track{height:9px;background:#e9eff1;border-radius:30px;overflow:hidden;}
+.progress-fill{height:100%;width:0%;background:var(--primary);border-radius:30px;transition:width .3s;}
+.step-panel{background:var(--surface);border:1px solid var(--line);border-radius:19px;padding:30px;box-shadow:var(--shadow);}
+.step-panel-heading{display:flex;justify-content:space-between;}
+.eyebrow.pill{background:var(--pale);padding:6px 12px;border-radius:20px;}
+.step-copy h2{font-size: 26px; margin: 15px 0;}
+.step-copy p{font-size: 18px; color: var(--muted);}
+.gentle-tip{background:var(--pale2);border:1px solid #cde7e2;padding:15px;border-radius:12px;margin:20px 0;display:flex;gap:10px;}
+.step-toolbar{display:flex;gap:15px;margin: 25px 0;}
+.quiet-button{background:var(--pale);color:var(--primary-d);padding:10px 15px;border-radius:10px;}
+.step-actions{display:flex;gap:10px;border-top:1px solid var(--line);padding-top:20px;}
+/* Teacher UI */
+.tab-buttons{display:flex;gap:10px;margin-bottom: 20px;}
+.tab-btn{background: transparent; color: var(--muted); border: 1px solid transparent; padding: 10px 20px;}
+.tab-btn.active{background: var(--surface); color: var(--primary); border: 1px solid var(--line); border-bottom: 3px solid var(--primary);}
+.teacher-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:25px; margin-bottom: 20px;}
+.editor-item{border:1px solid var(--line); border-radius: 12px; padding: 15px; margin-bottom: 15px; background: #fafbfc;}
+.record-btn{background: #ffe0e0; color: #a44848; padding: 8px 12px; font-size: 13px; border-radius: 6px; border: 1px solid #ffb3b3;}
+.record-btn.recording{background: #a44848; color: white; animation: pulse 1.5s infinite;}
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+/* A11y Modes */
+body.focus-mode .intro-copy, body.focus-mode .progress-panel { opacity: 0.3; }
+body.large-text { --body-size: 20px; }
+body.large-text h1 { font-size: 38px; }
+body.high-contrast { --page: #e0e0e0; --surface: #ffffff; --ink: #000000; --primary: #004d40; border-color: #000;}

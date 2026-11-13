@@ -1,198 +1,85 @@
-/*
- * LangkahKu ICT - assets/db.js
- * Koneksi dan operasi database Supabase.
- *
- * Tabel yang diharapkan:
- * users(id uuid, email text, role text)
- * sessions(id uuid, step_order integer, title text, description text)
- * progress(id uuid, user_id uuid, step_id uuid, status text, updated_at timestamptz)
- *
- * Catatan:
- * - Jangan pernah memasukkan service_role key ke file frontend.
- * - updateProgress membutuhkan UNIQUE(user_id, step_id) pada tabel progress.
- */
+// GANTI DENGAN KREDENSIAL SUPABASE ANDA
+const SUPABASE_URL = 'https://XYZ.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhb...';
 
-(() => {
-  "use strict";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const SUPABASE_URL = "https://tnihcwfstjjvorbqrhsg.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_rrLkDG-oDKiC3r8R8MMVDA_FN0pQAM5";
-
-  let supabaseClient = null;
-  let initializationError = null;
-
-  try {
-    if (!window.supabase || typeof window.supabase.createClient !== "function") {
-      throw new Error(
-        "Library Supabase belum termuat. Periksa koneksi internet dan script CDN di HTML."
-      );
-    }
-
-    supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-  } catch (error) {
-    initializationError = error;
-    console.error("Gagal menginisialisasi Supabase:", error);
-  }
-
-  function getClient() {
-    if (!supabaseClient) {
-      throw new Error(
-        initializationError?.message || "Supabase client belum tersedia."
-      );
-    }
-    return supabaseClient;
-  }
-
-  function makeUuid() {
-    if (window.crypto && typeof window.crypto.randomUUID === "function") {
-      return window.crypto.randomUUID();
-    }
-
-    // Fallback UUID untuk browser yang belum mendukung crypto.randomUUID().
-    const bytes = new Uint8Array(16);
-    window.crypto.getRandomValues(bytes);
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
-
-    const hex = Array.from(bytes, (byte) =>
-      byte.toString(16).padStart(2, "0")
-    ).join("");
-
-    return [
-      hex.slice(0, 8),
-      hex.slice(8, 12),
-      hex.slice(12, 16),
-      hex.slice(16, 20),
-      hex.slice(20)
-    ].join("-");
-  }
-
-  function throwDatabaseError(action, error) {
-    if (!error) return;
-    console.error(`${action}:`, error);
-    throw new Error(`${action}: ${error.message || "Kesalahan database."}`);
-  }
-
-  window.db = {
-    get supabase() {
-      return getClient();
-    },
-
+window.db = {
+    supabase: supabase,
+    
     async getUserRole(userId) {
-      if (!userId) throw new Error("ID pengguna tidak tersedia.");
-
-      const { data, error } = await getClient()
-        .from("users")
-        .select("role")
-        .eq("id", userId)
-        .maybeSingle();
-
-      throwDatabaseError("Gagal mengambil role pengguna", error);
-      return data?.role || null;
+        // Karena ada RLS dan ini membaca tabel profiles
+        const { data, error } = await supabase.from('profiles').select('role, full_name').eq('id', userId).single();
+        if (error) console.error("Gagal membaca profil:", error);
+        return data ? data : { role: 'siswa', full_name: '' };
     },
 
-    async loadSchedule() {
-      const { data, error } = await getClient()
-        .from("sessions")
-        .select("id, step_order, title, description")
-        .order("step_order", { ascending: true });
+    // --- FITUR GURU ---
+    async saveActivityWithSteps(title, stepsArray, teacherId) {
+        // 1. Simpan header aktivitas
+        const { data: actData, error: actErr } = await supabase.from('activities')
+            .insert([{ title: title, teacher_id: teacherId, is_published: true }]).select().single();
+        if (actErr) throw actErr;
 
-      throwDatabaseError("Gagal mengambil jadwal", error);
-      return data || [];
+        // 2. Simpan langkah-langkah
+        const stepsToInsert = stepsArray.map((s, index) => ({
+            activity_id: actData.id,
+            step_order: index + 1,
+            title: s.title,
+            instruction: s.instruction,
+            tip: s.tip,
+            audio_path: s.audio_path // Path dari storage
+        }));
+        
+        const { error: stepErr } = await supabase.from('activity_steps').insert(stepsToInsert);
+        if (stepErr) throw stepErr;
+        return actData;
     },
 
-    async saveSchedule(steps) {
-      if (!Array.isArray(steps) || steps.length === 0) {
-        throw new Error("Jadwal harus memiliki minimal satu aktivitas.");
-      }
-
-      const currentSteps = await this.loadSchedule();
-
-      const payload = steps.map((step, index) => {
-        const title = String(step.title || "").trim();
-        const description = String(step.description || "").trim();
-
-        if (!title) {
-          throw new Error(`Judul aktivitas ke-${index + 1} belum diisi.`);
+    async uploadAudio(blob, fileName) {
+        // Upload rekaman suara ke bucket 'audio_instruksi'
+        const { data, error } = await supabase.storage.from('audio_instruksi').upload(`rekaman/${fileName}`, blob, {
+            contentType: 'audio/webm',
+            upsert: true
+        });
+        if (error) {
+            console.error("Gagal upload audio:", error);
+            return null;
         }
-
-        return {
-          id: step.id || makeUuid(),
-          step_order: index + 1,
-          title,
-          description
-        };
-      });
-
-      // Simpan/update berdasarkan UUID, bukan membandingkan UUID dengan angka.
-      const { data, error } = await getClient()
-        .from("sessions")
-        .upsert(payload, { onConflict: "id" })
-        .select("id, step_order, title, description");
-
-      throwDatabaseError("Gagal menyimpan jadwal", error);
-
-      // Hapus hanya aktivitas lama yang memang sudah dihapus dari editor.
-      // Tidak menggunakan delete().neq('id', 0), karena id bertipe UUID.
-      const retainedIds = new Set(payload.map((step) => step.id));
-      const removedSteps = currentSteps.filter(
-        (step) => !retainedIds.has(step.id)
-      );
-
-      for (const oldStep of removedSteps) {
-        const { error: deleteError } = await getClient()
-          .from("sessions")
-          .delete()
-          .eq("id", oldStep.id);
-
-        throwDatabaseError(
-          `Gagal menghapus aktivitas lama "${oldStep.title}"`,
-          deleteError
-        );
-      }
-
-      return (data || payload).sort(
-        (a, b) => a.step_order - b.step_order
-      );
+        return data.path;
+    },
+    
+    async getAudioPublicUrl(path) {
+        if(!path) return null;
+        const { data } = supabase.storage.from('audio_instruksi').getPublicUrl(path);
+        return data.publicUrl;
     },
 
-    async loadProgress(userId) {
-      if (!userId) throw new Error("ID siswa tidak tersedia.");
-
-      const { data, error } = await getClient()
-        .from("progress")
-        .select("id, user_id, step_id, status, updated_at")
-        .eq("user_id", userId);
-
-      throwDatabaseError("Gagal mengambil progres siswa", error);
-      return data || [];
+    async getStudents() {
+        const { data } = await supabase.from('profiles').select('id, email').eq('role', 'siswa');
+        return data || [];
     },
 
-    async updateProgress(userId, stepId, status) {
-      if (!userId || !stepId) {
-        throw new Error("ID siswa atau ID aktivitas tidak tersedia.");
-      }
+    async saveAssessment(assignmentId, scores, notes, teacherId) {
+        const { error } = await supabase.from('assessments').upsert({
+            assignment_id: assignmentId,
+            understanding_score: scores.und,
+            independence_score: scores.ind,
+            completion_score: scores.comp,
+            notes: notes,
+            assessed_by: teacherId
+        });
+        if (error) console.error("Gagal simpan penilaian:", error);
+    },
 
-      const { data, error } = await getClient()
-        .from("progress")
-        .upsert(
-          {
-            user_id: userId,
-            step_id: stepId,
-            status,
-            updated_at: new Date().toISOString()
-          },
-          { onConflict: "user_id,step_id" }
-        )
-        .select("id, user_id, step_id, status, updated_at")
-        .single();
+    // --- FITUR SISWA ---
+    async getAssignedActivity() {
+        // Sederhana: Ambil aktivitas terbaru yang di-publish (MVP)
+        const { data, error } = await supabase.from('activities').select('id, title').eq('is_published', true).order('created_at', {ascending: false}).limit(1).single();
+        if(error || !data) return null;
 
-      throwDatabaseError("Gagal menyimpan progres siswa", error);
-      return data;
+        // Ambil langkah-langkahnya
+        const { data: steps } = await supabase.from('activity_steps').select('*').eq('activity_id', data.id).order('step_order', {ascending: true});
+        return { activity: data, steps: steps || [] };
     }
-  };
-})();
+};
