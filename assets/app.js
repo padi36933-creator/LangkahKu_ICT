@@ -8,13 +8,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const role = await window.db.getUserRole(user.id);
     document.getElementById('userInfo').innerText = `Login sebagai: ${user.email} (${role})`;
 
-    // 3. Render Dashboard berdasarkan Role
+   // 3. Render Dashboard berdasarkan Role
     if (role === 'guru') {
         initTeacherView();
-    } else {
+    } else if (role === 'siswa') {
         initStudentView(user.id);
+    } else {
+        document.getElementById('userInfo').innerText = `Role belum diatur untuk ${user.email}`;
+        alert("Akun Anda belum memiliki role. Hapus akun ini dari menu Authentication Supabase, lalu daftar ulang melalui form di web.");
     }
-
     // 4. Event Listener Global
     document.getElementById('btnLogout').addEventListener('click', () => {
         window.auth.logout();

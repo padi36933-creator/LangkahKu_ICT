@@ -1,19 +1,23 @@
 
 window.auth = {
     async checkSession() {
-        const { data: { session } } = await window.db.supabase.auth.getSession();
-        
-        // Pengecekan halaman
-        const isLoginPage = window.location.pathname.includes('login.html');
-        
-        if (!session && !isLoginPage) {
-            window.location.href = 'login.html';
-        } else if (session && isLoginPage) {
-            window.location.href = 'index.html';
-        }
-        
-        return session ? session.user : null;
-    },
+    const { data, error } = await window.db.supabase.auth.getSession();
+    const session = data?.session;
+    
+    // Cek apakah pengguna berada di halaman login
+    const isLoginPage = window.location.pathname.endsWith('login.html');
+    
+    if (!session && !isLoginPage) {
+        // Jika belum login dan BUKAN di halaman login, arahkan ke login.html
+        window.location.replace('login.html');
+        return null; // Hentikan eksekusi lebih lanjut
+    } else if (session && isLoginPage) {
+        // Jika sudah login dan BUKAN di dashboard, arahkan ke index.html
+        window.location.replace('index.html');
+    }
+    
+    return session ? session.user : null;
+},
 
     async login(email, password) {
         const { data, error } = await window.db.supabase.auth.signInWithPassword({ email, password });
