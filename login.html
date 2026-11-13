@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Login - LangkahKu ICT</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { display: grid; place-items: center; height: 100vh; background: var(--page); }
+    .auth-box { background: var(--surface); padding: 40px; border-radius: 19px; box-shadow: var(--shadow); width: 100%; max-width: 400px; }
+    .auth-box h1 { font-size: 24px; margin-bottom: 20px; text-align: center; }
+    .field-group { margin-bottom: 15px; }
+    .auth-actions { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div class="auth-box">
+    <h1>Masuk / Daftar</h1>
+    <form id="authForm">
+      <div class="field-group">
+        <label>Email</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="field-group">
+        <label>Password</label>
+        <input type="password" id="password" required>
+      </div>
+      <div class="field-group" id="roleGroup">
+        <label>Daftar Sebagai (Role)</label>
+        <select id="role">
+          <option value="siswa">Siswa (Responden)</option>
+          <option value="guru">Guru (Host)</option>
+        </select>
+      </div>
+      <div class="auth-actions">
+        <button type="submit" id="btnLogin" class="primary-button">Masuk</button>
+        <button type="button" id="btnRegister" class="secondary-button">Daftar Akun Baru</button>
+      </div>
+      <p id="authMsg" style="color: red; font-size: 12px; margin-top: 10px; text-align: center;"></p>
+    </form>
+  </div>
+  <script src="assets/db.js"></script>
+  <script src="assets/auth.js"></script>
+  <script>
+    // Logic untuk form login/register terpisah di sini atau dalam auth.js
+    document.getElementById('btnLogin').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.auth.login(document.getElementById('email').value, document.getElementById('password').value);
+    });
+    document.getElementById('btnRegister').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.auth.register(
+            document.getElementById('email').value, 
+            document.getElementById('password').value,
+            document.getElementById('role').value
+        );
+    });
+  </script>
+</body>
+</html>

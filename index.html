@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LangkahKu ICT — Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">L<span>•</span></div>
+        <div><div class="brand-title">LangkahKu <span>ICT</span></div><div class="brand-subtitle">Jadwal visual kelas komputer</div></div>
+      </div>
+      <div class="header-actions">
+        <div class="user-info" id="userInfo">Memuat...</div>
+        <button id="btnLogout" class="tool-button danger">Keluar</button>
+      </div>
+    </header>
+
+    <main id="mainContent">
+      <!-- TAMPILAN SISWA -->
+      <section id="studentView" aria-labelledby="studentTitle" hidden>
+        <div class="intro-row">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-dot"></span> BELAJAR KOMPUTER DASAR</div>
+            <h1 id="studentTitle">Kita belajar <span>satu langkah</span> setiap kali.</h1>
+          </div>
+        </div>
+        <div class="progress-panel" aria-label="Kemajuan kegiatan">
+          <div class="progress-heading">
+            <div><span class="mini-label">KEMAJUAN BELAJAR</span><strong id="progressSummary">0 dari 6 kegiatan selesai</strong></div>
+            <div class="progress-number" id="progressPercent">0%</div>
+          </div>
+          <div class="progress-track" id="progressTrack"><div id="progressFill" class="progress-fill"></div></div>
+        </div>
+        
+        <div class="learning-layout">
+          <aside class="schedule-panel" id="schedulePanel">
+            <div class="section-heading"><div><span class="mini-label">PANDUAN HARI INI</span><h2 id="scheduleTitle">Urutan kegiatan</h2></div></div>
+            <ol id="scheduleList" class="schedule-list"></ol>
+          </aside>
+
+          <section class="step-panel" id="stepPanel">
+             <div class="step-illustration"><span id="stepEmoji" class="illustration-emoji">🖥️</span></div>
+             <div class="step-copy"><h2 id="stepTitle">Memuat kegiatan...</h2><p id="stepDescription"></p></div>
+             <div class="step-actions">
+               <button type="button" id="completeButton" class="primary-button">✓ Tandai selesai</button>
+             </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- TAMPILAN GURU -->
+      <section id="teacherView" aria-labelledby="teacherTitle" hidden>
+        <div class="intro-row teacher-intro">
+          <div><div class="eyebrow"><span class="eyebrow-dot"></span> AREA PENDAMPING</div><h1 id="teacherTitle">Atur kegiatan <span>bersama guru.</span></h1></div>
+          <div class="teacher-badge">⚙️ Mode Host Aktif</div>
+        </div>
+        
+        <div class="teacher-grid">
+          <section class="teacher-card teacher-editor">
+            <div class="teacher-card-heading">
+              <div><span class="mini-label">PENGATURAN JADWAL</span><h2>Susun aktivitas</h2></div>
+              <button type="button" id="addStep" class="small-outline">+ Tambah</button>
+            </div>
+            <div id="editorList" class="editor-list"></div>
+            <div class="editor-actions">
+              <button type="button" id="saveSchedule" class="primary-button">Simpan ke Database</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/db.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

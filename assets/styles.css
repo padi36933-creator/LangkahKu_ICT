@@ -1,0 +1,15 @@
+
+:root{color-scheme:light;--page:#f5f8fa;--surface:#fff;--line:#e3eaee;--ink:#1f3344;--muted:#637487;--primary:#156a73;--primary-d:#0e535b;--pale:#e8f4f2;--pale2:#f3f8f7;--shadow:0 12px 34px rgba(26,58,75,.055);--focus:#bb691f;--body-size:16px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--page);color:var(--ink);font:var(--body-size)/1.52 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;letter-spacing:-.007em}
+/* Basic styling for buttons and layout taken from original file */
+button,input,textarea,select{font:inherit; width: 100%; border: 1px solid var(--line); padding: 10px; border-radius: 8px;}
+button{cursor:pointer; width: auto; font-weight: bold; border: none;}
+.primary-button{background:var(--primary);color:#fff;padding:12px 20px;border-radius:10px;}
+.secondary-button{background:#fff;color:var(--ink);border:1px solid var(--line);padding:12px 20px;border-radius:10px;}
+.danger{color:#a44848; background: #ffe6e6;}
+.page-shell{max-width:1410px;margin:0 auto;padding:22px 50px 0}
+.app-header{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:20px;}
+.learning-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;}
+.teacher-grid{display:grid;grid-template-columns:1fr;gap:20px;}
+.progress-panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:20px;}
+.step-panel, .schedule-panel, .teacher-card {background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;}
